@@ -1,18 +1,23 @@
 ﻿Add-Type -AssemblyName PresentationFramework
 
-Function Check-Event($ev,$co,$da){
+Function Check-Events($ev,$co,$da,$logtype){
 $comp=$co.trim()
-$re = Get-EventLog Application -ComputerName "$comp" -InstanceId $ev -After $da 
+$re = Get-EventLog $logtype -ComputerName "$comp" -InstanceId $ev -After $da 
 $res.text += "There are "+$re.count+" events of EventID $ev on computer $comp after the time $da `r`n"
 }
 
 [xml]$Form  = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        Title="Event Viewer" Height="350" Width="525" Background="#FF262626">
+        Title="Event Viewer" Height="450" Width="525" Background="#FF262626">
     <Grid>
         <Label Name="EventID" Content="EventID" HorizontalAlignment="Left" Height="25" Margin="10,10,0,0" VerticalAlignment="Top" Width="69" FontFamily="Segoe UI" Foreground="White"/>
         <Label Name="Computer" Content="Computer" HorizontalAlignment="Left" Height="26" Margin="10,41,0,0" VerticalAlignment="Top" Width="69" Foreground="White"/>
-        <Label Name="STime" Content="Start Time" HorizontalAlignment="Left" Height="28" Margin="10,71,0,0" VerticalAlignment="Top" Width="69" Foreground="White"/>
+        <Label Name="STime" Content="Start Time" HorizontalAlignment="Left" Height="28" Margin="10,71,0,0" VerticalAlignment="Top" Width="175" Foreground="White"/>
+        <ListBox Name="typeList" HorizontalAlignment="Left" Height="28" Margin="10,71,0,0" VerticalAlignment="Top" Width="175"/>
+            <item id="Application" label="Application" />
+            <item id="Security" label="Security" />
+            <item id="System" label="System" />
+         </dropDown>
         <TextBox Name="EID" HorizontalAlignment="Left" Height="25" Margin="79,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="155" BorderBrush="#FFF96816"/>
         <TextBox Name="Comp" HorizontalAlignment="Left" Height="26" Margin="79,41,0,0" TextWrapping="Wrap" Text=" " VerticalAlignment="Top" Width="155" BorderBrush="#FFF96816"/>
         <DatePicker Name="Date" HorizontalAlignment="Left" Height="27" Margin="79,72,0,0" VerticalAlignment="Top" Width="155" />
@@ -29,6 +34,7 @@ $Win=[Windows.Markup.XamlReader]::Load( $NR )
 $start = $Win.FindName(“Start”)
 $eid = $win.FindName("EID")
 $date = $win.FindName("Date")
+$logtype = $win.FindName("typeList")
 $comp = $win.FindName("Comp")
 $res = $win.FindName("Results")
 $start.Add_Click({
@@ -39,7 +45,7 @@ if($event -eq "" -or $computer -eq "" -or $da -eq $null ){
     [System.Windows.MessageBox]::Show("Please make sure all values are entered", "Missing Values")
 }else {
     $d = Get-date $da
-    Check-Event $event $computer $d  
+    Check-Events $event $computer $d $logtype 
 }
 
 })
