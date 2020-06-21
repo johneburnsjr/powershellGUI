@@ -2,7 +2,7 @@
 
 Function Check-Events($ev,$co,$da,$logtype){
 $comp=$co.trim()
-$re = Get-EventLog $logtype -ComputerName "$comp" -InstanceId $ev -After $da 
+$re = Get-EventLog -LogName $logtype -ComputerName "$comp" -InstanceId $ev -After $da 
 $res.text += "There are "+$re.count+" events of EventID $ev on computer $comp after the time $da `r`n"
 }
 
